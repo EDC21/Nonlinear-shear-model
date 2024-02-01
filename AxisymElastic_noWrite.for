@@ -273,9 +273,9 @@ C
 				  ELSE IF (stateNew(i,7).NE.one) THEN
 					  
 					  IF (stateNew(i,7) .NE. stateOld(i,7)) THEN
-						  stateNew(i,5) = stateOld(i,4)              ! SDV5: Origin of the unloading part
+						  stateNew(i,5) = stateOld(i,9)              ! SDV5: Origin of the unloading part
 					  ELSE
-						  stateNew(i,5) = stateOld(i,5)
+						  stateNew(i,5) = stateOld(i,9)
 					  ENDIF                                          !      /Maximum strain in the loading part
 					  
 					  stressNew(i,4) = stateNew(i,6)*(
