@@ -112,7 +112,7 @@ C
 C
        parameter(zero = 0.d0, one = 1.d0, two = 2.d0, three = 3.d0, 
      * third = one/three, half = 0.5d0, twothird = two/three, tol=0.1d0,
-     * threehalf = 1.5d0, safety = 1.d-20, tolSgn = 1.d-20, tolS12=1.d-20)              
+     * threehalf = 1.5d0)              
 C     
        character*80 cmname,cpname
        character*256 outdir,fullpath
@@ -139,18 +139,19 @@ C
 C INITIALISATION: MATERIAL CARD PARAMETERS
 C =========================================
 C
-      E11 = props(1) !E11 = 61646
-      E22 = props(2) !E33 = 13368
-      E33 = props(3) !E22 = 61646
-      v12 = props(4) !V13 = 0.3070
-      v13 = props(5) !V12 = 0.3187
-      v23 = props(6) !V32 = 0.0667 
-      G12 = props(7) !G13 = 4575
-      G13 = props(8) !G12 = 23373
-      G23 = props(9) !G32 = 4575
+      E11 = props(1) 
+      E22 = props(2) 
+      E33 = props(3) 
+      v12 = props(4) 
+      v13 = props(5) 
+      v23 = props(6) 
+      G12 = props(7) 
+      G13 = props(8) 
+      G23 = props(9) 
 	  NLS = props(10) ! Nonlinear shear flag
 	  A   = props(11)
 	  B   = props(12)
+	  G_ply = props(13) ! Shear modulus of single ply (important for nonlinear shear model!)
 C
       v21 = v12*E22/E11
       v31 = v13*E33/E11
@@ -265,7 +266,7 @@ C
 					  
 					      stateNew(i,9) = stateOld(i,9)
 						  stressNew(i,4) = stateNew(i,6)*abs(
-     *					   abs(G12*(abs(stateNew(i,9)- stateNew(i,4))))
+     *					   abs(G_ply*(abs(stateNew(i,9)- stateNew(i,4))))
      *	                  -abs(stateNew(i,10)))
 
 					  ENDIF
@@ -279,7 +280,7 @@ C
 					  ENDIF                                          !      /Maximum strain in the loading part
 					  
 					  stressNew(i,4) = stateNew(i,6)*(
-     *					   abs(G12*(abs(stateNew(i,4)- stateNew(i,5))))
+     *					   G_ply*(abs(stateNew(i,4)- stateNew(i,5)))
      *	                  -abs(stateNew(i,10)))  
 
 				  ENDIF

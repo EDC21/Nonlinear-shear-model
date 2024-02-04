@@ -151,6 +151,7 @@ C
 	  NLS = props(10) ! Nonlinear shear flag
 	  A   = props(11)
 	  B   = props(12)
+	  G_ply = props(13)
 C
       v21 = v12*E22/E11
       v31 = v13*E33/E11
@@ -214,7 +215,7 @@ C
 C         
           DO i = 1, nblock
 		  
-			  IF (i.EQ.22) THEN
+			  IF (i.EQ.41) THEN
 				  WRITE(*,*) '-----------------------------'			  
 				  WRITE(*,*) 'stepTime=', stepTime
 			  ENDIF
@@ -248,7 +249,7 @@ C
 				  flow = Sign(one, sgn_d_strain*stressOld(i,4))
 				  stateNew(i,7) = flow
 				
-				  IF (i.EQ.22) THEN
+				  IF (i.EQ.41) THEN
 					  
 					  WRITE(*,*) 'stateNew(i,4)=', stateNew(i,4)
 					  WRITE(*,*) 'strainInc(i,4)=', strainInc(i,4)
@@ -259,7 +260,7 @@ C
 				  
 				  IF (stateNew(i,7).EQ.one) THEN                              ! flow=1: loading; flow=-1: unloading					  
 					  
-					  IF (i.EQ.22) THEN
+					  IF (i.EQ.41) THEN
 						
 						WRITE(*,*) 'sign_change=', sign_change
 						WRITE(*,*) 'stateNew(i,11)=', stateNew(i,11)
@@ -270,7 +271,7 @@ C
 						  
 						  stateNew(i,8) = stateOld(i,4)              ! SDV8: Origin of the nonlinear part/loading part					       						  
 						  
-						  IF (i.EQ.22) THEN
+						  IF (i.EQ.41) THEN
 							  WRITE(*,*) 'stateNew(i,7)=', stateNew(i,7)
 							  WRITE(*,*) 'stateOld(i,7)=', stateOld(i,7)
 							  WRITE(*,*) 'stateNew(i,8)=', stateNew(i,8)
@@ -278,7 +279,7 @@ C
 						  
 					  ENDIF					  	
 					  
-					  IF (i.EQ.22) THEN
+					  IF (i.EQ.41) THEN
 						  WRITE(*,*) 'stateNew(i,9)=', stateNew(i,9)
 					  ENDIF
 					  
@@ -292,7 +293,7 @@ C
 						  s12_max = stressNew(i,4) 
 						  stateNew(i,10) = s12_max
 						  
-						  IF (i.EQ.22) THEN
+						  IF (i.EQ.41) THEN
 							  WRITE(*,*) 'stateNew(i,8)=', stateNew(i,8)
 							  WRITE(*,*) 'stateNew(i,9)=', stateNew(i,9)
 							  WRITE(*,*) 'stressNew(i,4)=', stressNew(i,4)
@@ -304,10 +305,10 @@ C
 					  
 					      stateNew(i,9) = stateOld(i,9)
 						  stressNew(i,4) = stateNew(i,6)*abs(
-     *					   abs(G12*(abs(stateNew(i,9)- stateNew(i,4))))
+     *					   abs(G_ply*(abs(stateNew(i,9)- stateNew(i,4))))
      *	                  -abs(stateNew(i,10)))
 						  
-						  IF (i.EQ.22) THEN
+						  IF (i.EQ.41) THEN
 							  WRITE(*,*) 'stateNew(i,9)=', stateNew(i,9)
 							  WRITE(*,*) 'stressNew(i,4)=', stressNew(i,4)
 						  ENDIF
@@ -319,7 +320,7 @@ C
 					  IF (stateNew(i,7) .NE. stateOld(i,7)) THEN
 						  stateNew(i,5) = stateNew(i,9)              ! SDV5: Origin of the unloading part
 					  	  
-						  IF (i.EQ.22) THEN
+						  IF (i.EQ.41) THEN
 							  WRITE(*,*) 'stateNew(i,7)=', stateNew(i,7)
 							  WRITE(*,*) 'stateOld(i,7)=', stateOld(i,7)
 							  WRITE(*,*) 'stateNew(i,5)=', stateNew(i,5)
@@ -329,10 +330,10 @@ C
 					  ENDIF                                          !      /Maximum strain in the loading part
 					  
 					  stressNew(i,4) = stateNew(i,6)*(
-     *					   G12*(abs(stateNew(i,4)- stateNew(i,5)))
+     *					   G_ply*(abs(stateNew(i,4)- stateNew(i,5)))
      *	                  -abs(stateNew(i,10)))
 					  
-					  IF (i.EQ.22) THEN
+					  IF (i.EQ.41) THEN
 						  WRITE(*,*) 'stateNew(i,8)=', stateNew(i,8)
 						  WRITE(*,*) 's12_max=', s12_max
 						  WRITE(*,*) 'stateNew(i,10)=', stateNew(i,10)
@@ -349,7 +350,7 @@ C
 				  ENDIF
 				  stateNew(i,11) = sign_change
 				  
-				  IF (i.EQ.22) THEN
+				  IF (i.EQ.41) THEN
 					  WRITE(*,*) 'sign_change=', sign_change
 					  WRITE(*,*) 'stateNew(i,11)=', stateNew(i,11)
 				  ENDIF
