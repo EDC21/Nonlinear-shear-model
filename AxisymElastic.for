@@ -112,7 +112,7 @@ C
 C
        parameter(zero = 0.d0, one = 1.d0, two = 2.d0, three = 3.d0, 
      * third = one/three, half = 0.5d0, twothird = two/three, tol=0.1d0,
-     * threehalf = 1.5d0, safety = 1.d-20, tolSgn = 1.d-20, tolS12=1.d-20)              
+     * threehalf = 1.5d0)              
 C     
        character*80 cmname,cpname
        character*256 outdir,fullpath
@@ -214,7 +214,7 @@ C
 C         
           DO i = 1, nblock
 		  
-			  IF (i.EQ.41) THEN
+			  IF (i.EQ.22) THEN
 				  WRITE(*,*) '-----------------------------'			  
 				  WRITE(*,*) 'stepTime=', stepTime
 			  ENDIF
@@ -248,7 +248,7 @@ C
 				  flow = Sign(one, sgn_d_strain*stressOld(i,4))
 				  stateNew(i,7) = flow
 				
-				  IF (i.EQ.41) THEN
+				  IF (i.EQ.22) THEN
 					  
 					  WRITE(*,*) 'stateNew(i,4)=', stateNew(i,4)
 					  WRITE(*,*) 'strainInc(i,4)=', strainInc(i,4)
@@ -259,8 +259,8 @@ C
 				  
 				  IF (stateNew(i,7).EQ.one) THEN                              ! flow=1: loading; flow=-1: unloading					  
 					  
-					  IF (i.EQ.41) THEN
-						WRITE(*,*) 'flow=', flow
+					  IF (i.EQ.22) THEN
+						
 						WRITE(*,*) 'sign_change=', sign_change
 						WRITE(*,*) 'stateNew(i,11)=', stateNew(i,11)
 					  ENDIF
@@ -270,16 +270,15 @@ C
 						  
 						  stateNew(i,8) = stateOld(i,4)              ! SDV8: Origin of the nonlinear part/loading part					       						  
 						  
-						  IF (i.EQ.41) THEN
+						  IF (i.EQ.22) THEN
 							  WRITE(*,*) 'stateNew(i,7)=', stateNew(i,7)
 							  WRITE(*,*) 'stateOld(i,7)=', stateOld(i,7)
-							  WRITE(*,*) 'stressOld(i,4)=', stressOld(i,4)
 							  WRITE(*,*) 'stateNew(i,8)=', stateNew(i,8)
 						  ENDIF
 						  
 					  ENDIF					  	
 					  
-					  IF (i.EQ.41) THEN
+					  IF (i.EQ.22) THEN
 						  WRITE(*,*) 'stateNew(i,9)=', stateNew(i,9)
 					  ENDIF
 					  
@@ -293,7 +292,7 @@ C
 						  s12_max = stressNew(i,4) 
 						  stateNew(i,10) = s12_max
 						  
-						  IF (i.EQ.41) THEN
+						  IF (i.EQ.22) THEN
 							  WRITE(*,*) 'stateNew(i,8)=', stateNew(i,8)
 							  WRITE(*,*) 'stateNew(i,9)=', stateNew(i,9)
 							  WRITE(*,*) 'stressNew(i,4)=', stressNew(i,4)
@@ -308,7 +307,7 @@ C
      *					   abs(G12*(abs(stateNew(i,9)- stateNew(i,4))))
      *	                  -abs(stateNew(i,10)))
 						  
-						  IF (i.EQ.41) THEN
+						  IF (i.EQ.22) THEN
 							  WRITE(*,*) 'stateNew(i,9)=', stateNew(i,9)
 							  WRITE(*,*) 'stressNew(i,4)=', stressNew(i,4)
 						  ENDIF
@@ -316,15 +315,11 @@ C
 					  ENDIF
 					  		  
 				  ELSE IF (stateNew(i,7).NE.one) THEN
-				  
-					  IF (i.EQ.41) THEN
-						  WRITE(*,*) 'flow=', flow
-					  ENDIF
 					  
 					  IF (stateNew(i,7) .NE. stateOld(i,7)) THEN
-						  stateNew(i,5) = stateOld(i,4)              ! SDV5: Origin of the unloading part
+						  stateNew(i,5) = stateNew(i,9)              ! SDV5: Origin of the unloading part
 					  	  
-						  IF (i.EQ.41) THEN
+						  IF (i.EQ.22) THEN
 							  WRITE(*,*) 'stateNew(i,7)=', stateNew(i,7)
 							  WRITE(*,*) 'stateOld(i,7)=', stateOld(i,7)
 							  WRITE(*,*) 'stateNew(i,5)=', stateNew(i,5)
@@ -337,7 +332,7 @@ C
      *					   G12*(abs(stateNew(i,4)- stateNew(i,5)))
      *	                  -abs(stateNew(i,10)))
 					  
-					  IF (i.EQ.41) THEN
+					  IF (i.EQ.22) THEN
 						  WRITE(*,*) 'stateNew(i,8)=', stateNew(i,8)
 						  WRITE(*,*) 's12_max=', s12_max
 						  WRITE(*,*) 'stateNew(i,10)=', stateNew(i,10)
@@ -354,7 +349,7 @@ C
 				  ENDIF
 				  stateNew(i,11) = sign_change
 				  
-				  IF (i.EQ.41) THEN
+				  IF (i.EQ.22) THEN
 					  WRITE(*,*) 'sign_change=', sign_change
 					  WRITE(*,*) 'stateNew(i,11)=', stateNew(i,11)
 				  ENDIF
