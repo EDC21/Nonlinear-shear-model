@@ -75,6 +75,7 @@ C SDV1  - Strain 11
 C SDV2  - Strain 22
 C SDV3  - Strain 33
 C SDV4  - Strain 12, engineering shear strain gamma
+
 C SDV5  - Original strain of the unloading part 
 C SDV6  - The sign of the increment of strain gamma_12 
 C SDV7  - The flow of loading; Loading: flow=1; Unloading: flow=-1
@@ -82,6 +83,7 @@ C SDV8  - Origin strain of the loading stage (origin of the nonlinear shear)
 C SDV9  - Maximum strain experienced during mono loading stage (the sign of the stress does not change)
 C SDV10 - Maximum stress ever experienced during one cycle
 C SDV11 - Sign change of shear stress: sign_change
+
 C SDV12 - Shear failure index under tension SHR_FIt
 C SDV13 - Shear failure index under compression SHR_FIc
 C SDV14 - Shear damage variable D_SHR
@@ -128,7 +130,7 @@ C
 C
        parameter(zero = 0.d0, one = 1.d0, two = 2.d0, three = 3.d0, 
      * third = one/three, half = 0.5d0, twothird = two/three, tol=0.1d0,
-     * threehalf = 1.5d0)              
+     * threehalf = 1.5d0, SL = 112.5d0)              
 C     
        character*80 cmname,cpname
        character*256 outdir,fullpath
@@ -142,7 +144,7 @@ C
 	   double precision Gft,Gfc
 	   
 	!  Nonlinear shear variables 
-       double precision NLS, A, B, G_ply, GSHRt, GSHRc
+       double precision A, B, G_ply, GSHR
 	   double precision sgn_d_strain, flow, s12_max, sign_change
 	   double precision SHR_FIt, SHR_FIc, SHR_FIt_old, SHR_FIc_old
 	   double precision SHR_FIt_max, SHR_FIc_max
@@ -174,10 +176,9 @@ C
       G23 = props(9) 
 	  NLS = props(10) ! Nonlinear shear flag
 	  A   = props(11)
-	  B   = props(12)
+	  B   = props(12) ! Equal to G_ply / A
 	  G_ply = props(13) ! Shear modulus of single ply (important for nonlinear shear model!)
-	  GSHRt = props(14)
-	  GSHRc = props(15) 
+	  GSHR  = props(14)
 
 C
 C AXISYMMETRIC MODEL STIFFNESS MATRIX 
@@ -235,11 +236,11 @@ C
 			  stateNew(i,11) = sign_change
 			  
 			  D_SHR = stateNew(i,14)
-			  stateNew(i,20) = zero    ! SDV20 - Shear failure flag: 0-elastic, 1-softening
-			  stateNew(i,26) = zero    ! SDV26 - Shear failure flag under tension
-			  stateNew(i,27) = zero    ! SDV27 - Shear failure flag under compression
-			  stateNew(i,15) = one     ! SDV15 - Element delete flag; 0-delete
-			  stateNew(i,19） = charLength(i)
+			  stateNew(i,20) = zero    ! Shear failure flag: 0-elastic, 1-softening
+			  stateNew(i,26) = zero    ! Shear failure flag under tension
+			  stateNew(i,27) = zero    ! Shear failure flag under compression
+			  stateNew(i,15) = one     ! Element delete flag; 0-delete
+			  stateNew(i,19) = charLength(i)
 			  
           ENDDO
 C
@@ -344,6 +345,7 @@ C CALCULATE DAMAGED SHEAR STRESS
 C =========================================================
 C  			  
 			      IF (stateNew(i,20) .eq. zero ) THEN  ! In the elastic region, calculate failure indices
+					  
 					  SHR_FIt = zero
 					  SHR_FIc = zero
 
@@ -352,9 +354,9 @@ C CALCULATE FAILURE INDICES
 C -------------------------
 					  
 					  IF (Stress(4) >= zero ) THEN
-						  SHR_FIt = Stress(4)/A
+						  SHR_FIt = Stress(4)/SL
 					  ELSEIF (Stress(4) < zero ) THEN
-						  SHR_FIc = -Stress(4)/A
+						  SHR_FIc = -Stress(4)/SL
 					  ENDIF
 					  
 					  SHR_FIt_old = stateOld(i,12)
@@ -387,7 +389,7 @@ C
 							  eps12_f0_T = stateNew(i,4)
 							  stateNew(i,17) = eps12_f0_T
 							  
-						      eps12_ff_T = 2.d0*GSHRt/(A*charLength(i)) ! Strain11 at final damage
+						      eps12_ff_T = 2.d0*GSHR/(A*charLength(i)) ! Strain11 at final damage
 						      stateNew(i,18) = eps12_ff_T			
 							  
 						  ELSEIF ( stateNew(i,4) < zero ) THEN
@@ -400,7 +402,7 @@ C
 							  eps12_f0_C = stateNew(i,4)
 							  stateNew(i,24) = eps12_f0_C
 							  
-							  eps12_ff_C = -2.d0*GSHRc/(A*charLength(i)) ! eps12_ff_C is minus
+							  eps12_ff_C = -2.d0*GSHR/(A*charLength(i)) ! eps12_ff_C is minus
 							  stateNew(i,25) = eps12_ff_C			
 							  
 						  ENDIF
@@ -415,7 +417,7 @@ C
 C					  
 						  IF ( stateNew(i,26) .EQ. zero ) THEN
 
-						      SHR_FIt = Stress(4)/A
+						      SHR_FIt = Stress(4)/SL
 							  SHR_FIt_old = stateOld(i,12)
 							  SHR_FIt_max = max(SHR_FIt, SHR_FIt_old)
 							  stateNew(i,12) = SHR_FIt_max
@@ -430,7 +432,7 @@ C
 								  eps12_f0_T = stateNew(i,4)
 								  stateNew(i,17) = eps12_f0_T
 								  
-								  eps12_ff_T = 2.d0*GSHRt/(A*charLength(i)) ! Strain11 at final damage
+								  eps12_ff_T = 2.d0*GSHR/(A*charLength(i)) ! Strain11 at final damage
 								  stateNew(i,18) = eps12_ff_T
 								  
 							  ENDIF
@@ -453,7 +455,7 @@ C
 					  
 						  IF ( stateNew(i,27) .EQ. zero ) THEN
 						  
-						      SHR_FIc = abs(Stress(4)/A)
+						      SHR_FIc = abs(Stress(4)/SL)
 							  SHR_FIc_old = stateOld(i,13)
 							  SHR_FIc_max = max(SHR_FIc, SHR_FIc_old)
 							  stateNew(i,13) = SHR_FIc_max
@@ -496,9 +498,13 @@ C
 C 
 C STRESS DEGRADATION
 C ------------------
-					  Stress(4) = (1-D_SHR)*Stress(4)
-				  
-				  ENDIF
+					  IF (D_SHR .LT. one) THEN 
+						  Stress(4) = (1-D_SHR)*Stress(4)
+					  ELSE
+						  stateNew(i,15) = zero
+					  ENDIF
+					  
+				  ENDIF ! FOR IF OF SHEAR SOFTENING
 C
 C TRANSFER STRESS VECTOR BACK TO ABAQUS
 C -------------------------------------
